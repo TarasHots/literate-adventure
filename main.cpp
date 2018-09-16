@@ -11,6 +11,7 @@ bool is_fire_away(const sf::Sprite &fire) { return fire.getPosition().y >= 480; 
 
 int main() {
     const uint windowWidth = 800, windowHeight = 480;
+    const float fireDelaySec = 1.0;
 
     sf::RenderWindow window(sf::VideoMode(windowWidth, windowHeight), "Obliterate!");
 
@@ -37,6 +38,7 @@ int main() {
     backgroundSprite.setTexture(backgroundTexture);
     bossSprite.setTexture(bossTexture);
 
+    sf::Clock clock;
     while (window.isOpen())
     {
         sf::Event event;
@@ -61,13 +63,18 @@ int main() {
         }
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
-            sf::Sprite fire;
-            float fireXPosition = bossPosition.x + 35;
-            float fireYPosition = bossPosition.y + 30;
 
-            fire.setPosition(fireXPosition, fireYPosition);
-            fire.setTexture(fireTexture);
-            fires.push_front(fire);
+            sf::Time started = clock.restart();
+
+            if (started.asSeconds() >= fireDelaySec) {
+                sf::Sprite fire;
+                float fireXPosition = bossPosition.x + 35;
+                float fireYPosition = bossPosition.y + 30;
+
+                fire.setPosition(fireXPosition, fireYPosition);
+                fire.setTexture(fireTexture);
+                fires.push_front(fire);
+            }
         }
 
         fires.remove_if(is_fire_away);
