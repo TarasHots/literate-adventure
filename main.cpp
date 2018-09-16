@@ -1,11 +1,13 @@
 #include <iostream>
 #include <string>
-#include <vector>
+#include <forward_list>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
 
 using namespace std;
+
+bool is_fire_away(const sf::Sprite &fire) { return fire.getPosition().y >= 480; };
 
 int main() {
     const uint windowWidth = 800, windowHeight = 480;
@@ -18,8 +20,7 @@ int main() {
     sf::RectangleShape infoPanel(sf::Vector2f(120, 80));
     infoPanel.setPosition(0, 450);
 
-    std::vector<sf::Sprite> fireVector;
-
+    std::forward_list<sf::Sprite> fires;
 
     if (!backgroundTexture.loadFromFile("../resources/background.jpg")) {
         window.close();
@@ -51,7 +52,6 @@ int main() {
 
         sf::Vector2f bossPosition = bossSprite.getPosition();
 
-
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
         {
             bossSprite.move(0.25, 0);
@@ -62,21 +62,23 @@ int main() {
 
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
             sf::Sprite fire;
-            fire.setPosition(bossPosition.x, bossPosition.y);
+            float fireXPosition = bossPosition.x + 35;
+            float fireYPosition = bossPosition.y + 30;
+
+            fire.setPosition(fireXPosition, fireYPosition);
             fire.setTexture(fireTexture);
-            fireVector.push_back(fire);
+            fires.push_front(fire);
         }
 
-        //update all fires that has been shot
-        for (auto &fire : fireVector) {
-            fire.move(0, 0.25);
+        fires.remove_if(is_fire_away);
 
-            //TODO remove unneeded fires
+        //update all fires that has been shot
+        for (auto &fire : fires) {
+            fire.move(0, 0.25);
 
             window.draw(fire);
         }
 
-        //window.draw(bossPositionText);
         window.draw(infoPanel);
         window.draw(bossSprite);
         window.display();
