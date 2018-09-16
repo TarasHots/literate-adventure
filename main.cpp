@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/System.hpp>
+#include <SFML/Audio.hpp>
 
 using namespace std;
 
@@ -17,6 +18,7 @@ int main() {
 
     sf::Texture backgroundTexture, bossTexture, fireTexture;
     sf::Sprite backgroundSprite, bossSprite;
+    sf::SoundBuffer bossShotBuffer, bossBreathBuffer;
 
     sf::RectangleShape infoPanel(sf::Vector2f(120, 80));
     infoPanel.setPosition(0, 450);
@@ -37,6 +39,22 @@ int main() {
 
     backgroundSprite.setTexture(backgroundTexture);
     bossSprite.setTexture(bossTexture);
+
+    if (!bossShotBuffer.loadFromFile("../resources/boss/sound/fireball.wav"))
+    {
+        window.close();
+    }
+
+    if (!bossBreathBuffer.loadFromFile("../resources/boss/sound/breath.wav"))
+    {
+        window.close();
+    }
+
+    sf::Sound bossFireballSound, bossBreathSound;
+    bossFireballSound.setBuffer(bossShotBuffer);
+    bossBreathSound.setBuffer(bossBreathBuffer);
+
+    bossBreathSound.play();
 
     sf::Clock clock;
     while (window.isOpen())
@@ -66,14 +84,17 @@ int main() {
 
             sf::Time started = clock.restart();
 
+            //shoot not to often
             if (started.asSeconds() >= fireDelaySec) {
                 sf::Sprite fire;
+                //align shooting position
                 float fireXPosition = bossPosition.x + 35;
                 float fireYPosition = bossPosition.y + 30;
 
                 fire.setPosition(fireXPosition, fireYPosition);
                 fire.setTexture(fireTexture);
                 fires.push_front(fire);
+                bossFireballSound.play();
             }
         }
 
